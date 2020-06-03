@@ -17,6 +17,7 @@ class K1804BC1 : public IDSIMMODEL
 {
 	IINSTANCE* _inst;
 	IDSIMCKT* _ckt;
+	ABSTIME _time;
 
 	uint32_t _dbg_counter;
 	uint8_t _regs[NUM_OF_REGISTERS];

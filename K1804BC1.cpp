@@ -42,6 +42,11 @@ VOID K1804BC1::setup(IINSTANCE* instance, IDSIMCKT* dsimckt) {
 		_pin_I[i] = _inst->getdsimpin(buffer, true);
 	}
 
+	_pin_PQ0 = _inst->getdsimpin((CHAR*)"PQ0", true);
+	_pin_PQ3 = _inst->getdsimpin((CHAR*)"PQ3", true);
+	_pin_PR0 = _inst->getdsimpin((CHAR*)"PR0", true);
+	_pin_PR3 = _inst->getdsimpin((CHAR*)"PR3", true);
+
 	_pin_T = _inst->getdsimpin((CHAR*)"T", true);
 	_pin_OE = _inst->getdsimpin((CHAR*)"OE", true);
 	_pin_C0 = _inst->getdsimpin((CHAR*)"C0", true);
@@ -405,20 +410,21 @@ void K1804BC1::__load__100(const CommandFields* cmd, ALUReasult* res, ILogger* l
 		return;
 	}
 	// PR0->X1, PQ0->Y2
-		// Выставляем на выходы PR0, PQ0 значения выталкиваемых битов X1, Y2
-		//PQ0 = _reg_q & 0b0001;
-		//PR0 = res->Y & 0b0001;
+	// Выставляем на выходы PR0, PQ0 значения выталкиваемых битов X1, Y2
+	setState(_time, _pin_PQ0, _reg_q & 0b0001);
+	setState(_time, _pin_PR0, res->Y & 0b0001);
+
 	uint8_t pq = _reg_q >> 1;
 	uint8_t ron = res->Y >> 1;
 
 	// X2->PR3, Y2->PQ3
 	// Получаем с входов PR3, PQ3 значения задвигающих битов X2, Y2
-	//if (PR3 == 1) {
-	//	ron |= 0b1000;
-	//}
-	//if (PQ3 == 1) {
-	//	pq |= 0b1000;
-	//}
+	if (isHigh(_pin_PR3)) {
+		ron |= 0b1000;
+	}
+	if (isHigh(_pin_PQ3)) {
+		pq |= 0b1000;
+	}
 	_reg_q = (pq) & 0b1111;
 	_regs[cmd->B] = (ron) & 0b1111;
 	if (log != nullptr) {
@@ -433,15 +439,16 @@ void K1804BC1::__load__101(const CommandFields* cmd, ALUReasult* res, ILogger* l
 		return;
 	}
 	// PR0->X1
-		// Выставляем на выход PR0 значение выталкиваемого бита X1
-		//PR0 = res->Y & 0b0001;
+	// Выставляем на выход PR0 значение выталкиваемого бита X1
+	setState(_time, _pin_PR0, res->Y & 0b0001);
+
 	uint8_t ron = res->Y >> 1;
 
 	// X2->PR3
 	// Получаем с входа PR3 значение задвигающего битов X2
-	//if (PR3 == 1) {
-	//	ron |= 0b1000;
-	//}
+	if (isHigh(_pin_PR3)) {
+		ron |= 0b1000;
+	}
 	_regs[cmd->B] = (ron) & 0b1111;
 	if (log != nullptr) {
 		log->log("POH(B=" + std::to_string(cmd->B) + ")=F/2=" +
@@ -457,17 +464,17 @@ void K1804BC1::__load__110(const CommandFields* cmd, ALUReasult* res, ILogger* l
 
 	// PR0<-X1, PQ0<-Y2
 	// Получаем со входов PR0, PQ0 значения задвигающих битов X1, Y2
-	//if (PR0 == 1) {
-	//	ron |= 0b0001;
-	//}
-	//if (PQ0 == 1) {
-	//	pq |= 0b0001;
-	//}
+	if (isHigh(_pin_PR0)) {
+		ron |= 0b0001;
+	}
+	if (isHigh(_pin_PQ0)) {
+		pq |= 0b0001;
+	}
 
 	// X2<-PR3, Y2<-PQ3
 	// Выставляем на выходы PR3, PQ3 значения выталкиваемых битов X2, Y2
-	//PQ3 = pq & 0b10000;
-	//PR3 = ron & 0b10000;
+	setState(_time, _pin_PQ3, pq & 0b10000);
+	setState(_time, _pin_PR3, ron & 0b10000);
 
 	_reg_q = (pq) & 0b1111;
 	_regs[cmd->B] = (ron) & 0b1111;
@@ -485,13 +492,14 @@ void K1804BC1::__load__111(const CommandFields* cmd, ALUReasult* res, ILogger* l
 
 	// PR0<-X1
 	// Получаем со входа PR0 значение задвигающего бита X1
-	//if (PR0 == 1) {
-	//	ron |= 0b0001;
-	//}
+	if (isHigh(_pin_PR0)) {
+		ron |= 0b0001;
+	}
 	
 	// X2<-PR3
 	// Выставляем на выход PR3 значение выталкиваемого бита X2
-	//PR3 = ron & 0b10000;
+	setState(_time, _pin_PR3, ron & 0b10000);
+
 	_regs[cmd->B] = (ron) & 0b1111;
 	if (log != nullptr) {
 		log->log("POH(B=" + std::to_string(cmd->B) + ")=2F=" +
@@ -540,6 +548,7 @@ void K1804BC1::load(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 
 VOID K1804BC1::simulate(ABSTIME time, DSIMMODES mode) {
 	auto log = new Logger();
+	_time = time;
 
 	if (isPosedge(_pin_T)) {
 		// получение микрокоманды
