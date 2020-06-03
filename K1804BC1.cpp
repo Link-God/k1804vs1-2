@@ -411,8 +411,17 @@ void K1804BC1::__load__100(const CommandFields* cmd, ALUReasult* res, ILogger* l
 	}
 	// PR0->X1, PQ0->Y2
 	// Выставляем на выходы PR0, PQ0 значения выталкиваемых битов X1, Y2
-	setState(_time, _pin_PQ0, _reg_q & 0b0001);
-	setState(_time, _pin_PR0, res->Y & 0b0001);
+	if ((_reg_q & 0b0001) == 1) {
+		setState(_time, _pin_PQ0, 1);
+	} else {
+		setState(_time, _pin_PQ0, -1);
+	}
+
+	if ((res->Y & 0b0001) == 1) {
+		setState(_time, _pin_PR0, 1);
+	} else {
+		setState(_time, _pin_PR0, -1);
+	}
 
 	uint8_t pq = _reg_q >> 1;
 	uint8_t ron = res->Y >> 1;
@@ -440,8 +449,12 @@ void K1804BC1::__load__101(const CommandFields* cmd, ALUReasult* res, ILogger* l
 	}
 	// PR0->X1
 	// Выставляем на выход PR0 значение выталкиваемого бита X1
-	setState(_time, _pin_PR0, res->Y & 0b0001);
-
+	if ((res->Y & 0b0001) == 1) {
+		setState(_time, _pin_PR0, 1);
+	} else {
+		setState(_time, _pin_PR0, -1);
+	}
+	
 	uint8_t ron = res->Y >> 1;
 
 	// X2->PR3
@@ -473,8 +486,17 @@ void K1804BC1::__load__110(const CommandFields* cmd, ALUReasult* res, ILogger* l
 
 	// X2<-PR3, Y2<-PQ3
 	// Выставляем на выходы PR3, PQ3 значения выталкиваемых битов X2, Y2
-	setState(_time, _pin_PQ3, pq & 0b10000);
-	setState(_time, _pin_PR3, ron & 0b10000);
+	if ((pq & 0b10000) == 1) {
+		setState(_time, _pin_PQ3, 1);
+	} else {
+		setState(_time, _pin_PQ3, -1);
+	}
+
+	if ((ron & 0b10000) == 1) {
+		setState(_time, _pin_PR3, 1);
+	} else {
+		setState(_time, _pin_PR3, -1);
+	}
 
 	_reg_q = (pq) & 0b1111;
 	_regs[cmd->B] = (ron) & 0b1111;
@@ -498,7 +520,11 @@ void K1804BC1::__load__111(const CommandFields* cmd, ALUReasult* res, ILogger* l
 	
 	// X2<-PR3
 	// Выставляем на выход PR3 значение выталкиваемого бита X2
-	setState(_time, _pin_PR3, ron & 0b10000);
+	if ((ron & 0b10000) == 1) {
+		setState(_time, _pin_PR3, 1);
+	} else {
+		setState(_time, _pin_PR3, -1);
+	}
 
 	_regs[cmd->B] = (ron) & 0b1111;
 	if (log != nullptr) {
