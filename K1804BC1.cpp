@@ -11,12 +11,74 @@ uint8_t K1804BC1::genValue(IDSIMPIN** pins, size_t n, size_t offset) {
 		res |= isHigh(pins[offset + i]) << i;
 	return res;
 }
+void K1804BC1::computeArithmeticFlags(ALUReasult* res, uint8_t c0, const Operands* ops, uint8_t aluCode) {
+	
+	switch (aluCode) {
+		case 3:
+			// ~(P3 * P2 * P1 * P0 + Cn); Сn == C0; P = R + S
+			res->C4 = ~((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 | ops->S &0b0100)  & 
+						(ops->R & 0b0010 | ops->S &0b0010) & (ops->R & 0b0001 | ops->S &0b0001)) | c0
+			// ~(P3 * P2 * P1 * P0 + Cn); Сn == C0; P = R + S
+			res->OVR = ~((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 | ops->S &0b0100) & 
+						(ops->R & 0b0010 | ops->S &0b0010) & (ops->R & 0b0001 | ops->S &0b0001)) | c0
+			break;
+		case 4:
+			// G3 + G2 + G1 + G0 + Cn; Сn == C0; G = R * S
+			res->C4 = ((ops->R & 0b1000 & ops->S &0b1000) | (ops->R & 0b0100 & ops->S &0b0100)   |
+					   (ops->R & 0b0010 & ops->S &0b0010) | (ops->R & 0b0001 & ops->S &0b0001))  | c0
+			// G3 + G2 + G1 + G0 + Cn; Сn == C0; G = R * S
+			res->OVR = ((ops->R & 0b1000 & ops->S &0b1000) | (ops->R & 0b0100 & ops->S &0b0100)  |
+					    (ops->R & 0b0010 & ops->S &0b0010) | (ops->R & 0b0001 & ops->S &0b0001)) | c0
+			break;
+		case 5:
+			// Так же, как в 4, но все R заменены на ~R
+			res->C4 = ((~ops->R & 0b1000 & ops->S &0b1000) | (~ops->R & 0b0100 & ops->S &0b0100)   |
+					   (~ops->R & 0b0010 & ops->S &0b0010) | (~ops->R & 0b0001 & ops->S &0b0001))  | c0
 
-void K1804BC1::computeArithmeticFlags(ALUReasult* res) {
-	res->Z = !(res->Y & 0b1111);
-	res->C4 = res->Y & 0b10000;
-	res->F3 = res->Y & 0b1000;
-	res->OVR = res->C4 ^ res->F3;
+			res->OVR = (~(ops->R & 0b1000 & ops->S &0b1000) | (~ops->R & 0b0100 & ops->S &0b0100)  |
+					    (~ops->R & 0b0010 & ops->S &0b0010) | (~ops->R & 0b0001 & ops->S &0b0001)) | c0
+			break;
+		case 6:
+			// Так же, как в 7, но все R заменены на ~R
+			res->C4 =  ~((~ops->R & 0b1000 & ops->S &0b1000) | ((~ops->R & 0b1000 | ops->S &0b1000) & (~ops->R & 0b0100 & ops->S &0b0100)) |
+						((~ops->R & 0b1000 | ops->S &0b1000) & (~ops->R & 0b0100 | ops->S &0b0100)  & (~ops->R & 0b0010 & ops->S &0b0010)) |
+						(((~ops->R & 0b1000 | ops->S &0b1000) & (~ops->R & 0b0100 | ops->S &0b0100)  & (~ops->R & 0b0010 | ops->S &0b0010) & (~ops->R & 0b0001 | ops->S &0b0001)) & 
+						((~ops->R & 0b0001 & ops->S &0b0001) | ~c0)))
+
+			res->OVR = (~(~ops->R & 0b0100 | ops->S &0b0100) | 
+						~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 & ops->S &0b0010) & ~(~ops->R & 0b0001 | ops->S &0b0001) |
+						~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 & ops->S &0b0010) & ~(~ops->R & 0b0001 & ops->S &0b0001) & c0)
+						^
+						(~(~ops->R & 0b1000 | ops->S &0b1000) |
+						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 | ops->S &0b0100) |
+						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 | ops->S &0b0010) |
+						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 & ops->S &0b0010) & ~(~ops->R & 0b0001 | ops->S &0b0001) |
+						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 & ops->S &0b0010) & ~(~ops->R & 0b0001 & ops->S &0b0001) & c0)
+			break:
+		case 7:
+			// ~(G3 + P3 * G2 + P3 * P2 * G1 + P3 * P2 * P1 * P0 * (G1 + ~Cn)); Сn == C0
+			res->C4 = ~((ops->R & 0b1000 & ops->S &0b1000) | ((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 & ops->S &0b0100))  |
+						((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 | ops->S &0b0100)  & (ops->R & 0b0010 & ops->S &0b0010)) |
+						(((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 | ops->S &0b0100)  & (ops->R & 0b0010 | ops->S &0b0010) & (ops->R & 0b0001 | ops->S &0b0001)) & 
+						((ops->R & 0b0001 & ops->S &0b0001) | ~c0)))
+			// (~P2 + ~G2 * ~P1 + ~G2 * ~G1 * ~P0 + ~G2 * ~G1 * ~G0 * Cn) ^ 
+			// (~P3 + ~G3 * ~P2 + ~G3 * ~G2 * ~P1 + ~G3 * ~G2 * ~G1 * ~P0 + ~G3 * ~G2 * ~G1 * ~G0 * Cn)
+			res->OVR = (~(ops->R & 0b0100 | ops->S &0b0100) | 
+						~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 & ops->S &0b0010) & ~(ops->R & 0b0001 | ops->S &0b0001) |
+						~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 & ops->S &0b0010) & ~(ops->R & 0b0001 & ops->S &0b0001) & c0)
+						^
+						(~(ops->R & 0b1000 | ops->S &0b1000) |
+						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 | ops->S &0b0100) |
+						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 | ops->S &0b0010) |
+						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 & ops->S &0b0010) & ~(ops->R & 0b0001 | ops->S &0b0001) |
+						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 & ops->S &0b0010) & ~(ops->R & 0b0001 & ops->S &0b0001) & c0)		
+			break;
+		default:
+			res->Z = !(res->Y & 0b1111);
+			res->C4 = res->Y & 0b10000;
+			res->F3 = res->Y & 0b1000;
+			res->OVR = res->C4 ^ res->F3;
+	}
 }
 
 // линковка выходов схемы в Proteus и в коде
@@ -41,11 +103,6 @@ VOID K1804BC1::setup(IINSTANCE* instance, IDSIMCKT* dsimckt) {
 		sprintf_s(buffer, "I%d", i);
 		_pin_I[i] = _inst->getdsimpin(buffer, true);
 	}
-
-	_pin_PQ0 = _inst->getdsimpin((CHAR*)"PQ0", true);
-	_pin_PQ3 = _inst->getdsimpin((CHAR*)"PQ3", true);
-	_pin_PR0 = _inst->getdsimpin((CHAR*)"PR0", true);
-	_pin_PR3 = _inst->getdsimpin((CHAR*)"PR3", true);
 
 	_pin_T = _inst->getdsimpin((CHAR*)"T", true);
 	_pin_OE = _inst->getdsimpin((CHAR*)"OE", true);
@@ -231,7 +288,7 @@ void K1804BC1::__alu__000(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 			+ std::to_string(ops->S) + "+" + std::to_string(c0) + "="
 			+ std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res);
+	computeArithmeticFlags(res, c0, ops, 0);
 }
 
 void K1804BC1::__alu__001(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -244,7 +301,7 @@ void K1804BC1::__alu__001(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 			+ std::to_string(ops->R) + "-1+" + std::to_string(c0) + "="
 			+ std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res);
+	computeArithmeticFlags(res, c0, ops, 1);
 }
 
 void K1804BC1::__alu__010(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -257,7 +314,7 @@ void K1804BC1::__alu__010(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 			+ std::to_string(ops->S) + "-1+" + std::to_string(c0) + "="
 			+ std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res);
+	computeArithmeticFlags(res, c0, ops, 2);
 }
 
 void K1804BC1::__alu__011(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -269,7 +326,7 @@ void K1804BC1::__alu__011(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=RvS=" + std::to_string(ops->R) + "v"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
 	}
-	// ... TODO: Flags
+	computeArithmeticFlags(res, c0, ops, 3);
 }
 
 void K1804BC1::__alu__100(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -281,7 +338,7 @@ void K1804BC1::__alu__100(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=R&S=" + std::to_string(ops->R) + "&"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
 	}
-	// ... TODO: Flags
+	computeArithmeticFlags(res, c0, ops, 4);
 }
 
 void K1804BC1::__alu__101(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -293,7 +350,7 @@ void K1804BC1::__alu__101(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=~R&S=" + std::to_string(ops->R) + "&"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
 	}
-	// ... TODO: Flags
+	computeArithmeticFlags(res, c0, ops, 5);
 }
 
 void K1804BC1::__alu__110(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -305,7 +362,7 @@ void K1804BC1::__alu__110(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=R^S=" + std::to_string(ops->R) + "^"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
 	}
-	// ... TODO: Flags
+	computeArithmeticFlags(res, c0, ops, 6);
 }
 
 void K1804BC1::__alu__111(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -317,7 +374,7 @@ void K1804BC1::__alu__111(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=~(R^S)=~(" + std::to_string(ops->R) + "^"
 			+ std::to_string(ops->S) + ")=" + std::to_string(res->Y));
 	}
-	// ... TODO: Flags
+	computeArithmeticFlags(res, c0, ops, 7);
 }
 
 K1804BC1::ALUReasult* K1804BC1::ALU(uint8_t c0, uint8_t code, const Operands* ops, ILogger* log) {
@@ -410,30 +467,20 @@ void K1804BC1::__load__100(const CommandFields* cmd, ALUReasult* res, ILogger* l
 		return;
 	}
 	// PR0->X1, PQ0->Y2
-	// Выставляем на выходы PR0, PQ0 значения выталкиваемых битов X1, Y2
-	if ((_reg_q & 0b0001) == 1) {
-		setState(_time, _pin_PQ0, 1);
-	} else {
-		setState(_time, _pin_PQ0, -1);
-	}
-
-	if ((res->Y & 0b0001) == 1) {
-		setState(_time, _pin_PR0, 1);
-	} else {
-		setState(_time, _pin_PR0, -1);
-	}
-
+		// Выставляем на выходы PR0, PQ0 значения выталкиваемых битов X1, Y2
+		//PQ0 = _reg_q & 0b0001;
+		//PR0 = res->Y & 0b0001;
 	uint8_t pq = _reg_q >> 1;
 	uint8_t ron = res->Y >> 1;
 
 	// X2->PR3, Y2->PQ3
 	// Получаем с входов PR3, PQ3 значения задвигающих битов X2, Y2
-	if (isHigh(_pin_PR3)) {
-		ron |= 0b1000;
-	}
-	if (isHigh(_pin_PQ3)) {
-		pq |= 0b1000;
-	}
+	//if (PR3 == 1) {
+	//	ron |= 0b1000;
+	//}
+	//if (PQ3 == 1) {
+	//	pq |= 0b1000;
+	//}
 	_reg_q = (pq) & 0b1111;
 	_regs[cmd->B] = (ron) & 0b1111;
 	if (log != nullptr) {
@@ -448,20 +495,15 @@ void K1804BC1::__load__101(const CommandFields* cmd, ALUReasult* res, ILogger* l
 		return;
 	}
 	// PR0->X1
-	// Выставляем на выход PR0 значение выталкиваемого бита X1
-	if ((res->Y & 0b0001) == 1) {
-		setState(_time, _pin_PR0, 1);
-	} else {
-		setState(_time, _pin_PR0, -1);
-	}
-	
+		// Выставляем на выход PR0 значение выталкиваемого бита X1
+		//PR0 = res->Y & 0b0001;
 	uint8_t ron = res->Y >> 1;
 
 	// X2->PR3
 	// Получаем с входа PR3 значение задвигающего битов X2
-	if (isHigh(_pin_PR3)) {
-		ron |= 0b1000;
-	}
+	//if (PR3 == 1) {
+	//	ron |= 0b1000;
+	//}
 	_regs[cmd->B] = (ron) & 0b1111;
 	if (log != nullptr) {
 		log->log("POH(B=" + std::to_string(cmd->B) + ")=F/2=" +
@@ -477,26 +519,17 @@ void K1804BC1::__load__110(const CommandFields* cmd, ALUReasult* res, ILogger* l
 
 	// PR0<-X1, PQ0<-Y2
 	// Получаем со входов PR0, PQ0 значения задвигающих битов X1, Y2
-	if (isHigh(_pin_PR0)) {
-		ron |= 0b0001;
-	}
-	if (isHigh(_pin_PQ0)) {
-		pq |= 0b0001;
-	}
+	//if (PR0 == 1) {
+	//	ron |= 0b0001;
+	//}
+	//if (PQ0 == 1) {
+	//	pq |= 0b0001;
+	//}
 
 	// X2<-PR3, Y2<-PQ3
 	// Выставляем на выходы PR3, PQ3 значения выталкиваемых битов X2, Y2
-	if ((pq & 0b10000) == 1) {
-		setState(_time, _pin_PQ3, 1);
-	} else {
-		setState(_time, _pin_PQ3, -1);
-	}
-
-	if ((ron & 0b10000) == 1) {
-		setState(_time, _pin_PR3, 1);
-	} else {
-		setState(_time, _pin_PR3, -1);
-	}
+	//PQ3 = pq & 0b10000;
+	//PR3 = ron & 0b10000;
 
 	_reg_q = (pq) & 0b1111;
 	_regs[cmd->B] = (ron) & 0b1111;
@@ -514,18 +547,13 @@ void K1804BC1::__load__111(const CommandFields* cmd, ALUReasult* res, ILogger* l
 
 	// PR0<-X1
 	// Получаем со входа PR0 значение задвигающего бита X1
-	if (isHigh(_pin_PR0)) {
-		ron |= 0b0001;
-	}
+	//if (PR0 == 1) {
+	//	ron |= 0b0001;
+	//}
 	
 	// X2<-PR3
 	// Выставляем на выход PR3 значение выталкиваемого бита X2
-	if ((ron & 0b10000) == 1) {
-		setState(_time, _pin_PR3, 1);
-	} else {
-		setState(_time, _pin_PR3, -1);
-	}
-
+	//PR3 = ron & 0b10000;
 	_regs[cmd->B] = (ron) & 0b1111;
 	if (log != nullptr) {
 		log->log("POH(B=" + std::to_string(cmd->B) + ")=2F=" +
@@ -574,7 +602,6 @@ void K1804BC1::load(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 
 VOID K1804BC1::simulate(ABSTIME time, DSIMMODES mode) {
 	auto log = new Logger();
-	_time = time;
 
 	if (isPosedge(_pin_T)) {
 		// получение микрокоманды
