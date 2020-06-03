@@ -38,6 +38,10 @@ class K1804BC1 : public IDSIMMODEL
 	IDSIMPIN* _pin_Z;
 	IDSIMPIN* _pin_F3;
 	IDSIMPIN* _pin_OVR;
+	IDSIMPIN* _pin_PR0;
+	IDSIMPIN* _pin_PQ0;
+	IDSIMPIN* _pin_PR3;
+	IDSIMPIN* _pin_PQ3;
 	uint8_t genValue(IDSIMPIN** pins, size_t n, size_t offset = 0);
 	bool isHigh(IDSIMPIN* pin);
 	bool isLow(IDSIMPIN* pin);
@@ -94,6 +98,16 @@ class K1804BC1 : public IDSIMMODEL
 
 	void load(const CommandFields* cmd, ALUReasult* res, ILogger* log);
 
+	void __load__000(const CommandFields* cmd, ALUReasult* res, ILogger* log);
+	void __load__001(const CommandFields* cmd, ALUReasult* res, ILogger* log);
+	void __load__010(const CommandFields* cmd, ALUReasult* res, ILogger* log);
+	void __load__011(const CommandFields* cmd, ALUReasult* res, ILogger* log);
+	void __load__100(const CommandFields* cmd, ALUReasult* res, ILogger* log);
+	void __load__101(const CommandFields* cmd, ALUReasult* res, ILogger* log);
+	void __load__110(const CommandFields* cmd, ALUReasult* res, ILogger* log);
+	void __load__111(const CommandFields* cmd, ALUReasult* res, ILogger* log);
+	
+	void computeArithmeticFlags(ALUReasult* res);
 public:
 	INT isdigital(CHAR* pinname);
 	VOID setup(IINSTANCE* inst, IDSIMCKT* dsim);

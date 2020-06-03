@@ -1,5 +1,6 @@
 #include <string>
 
+#include "pch.h"
 #include "logger.h"
 
 void Logger::log(const std::string& msg) {
