@@ -1,4 +1,4 @@
-// MT1804BC1.cpp: îïðåäåëÿåò ýêñïîðòèðîâàííûå ôóíêöèè äëÿ ïðèëîæåíèÿ DLL.
+// MT1804BC1.cpp: Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÑÐµÑ‚ ÑÐºÑÐ¿Ð¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ðµ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ Ð´Ð»Ñ Ð¿Ñ€Ð¸Ð»Ð¾Ð¶ÐµÐ½Ð¸Ñ DLL.
 //
 
 #include "pch.h"
@@ -19,7 +19,7 @@ void K1804BC1::computeArithmeticFlags(ALUReasult* res) {
 	res->OVR = res->C4 ^ res->F3;
 }
 
-// ëèíêîâêà âûõîäîâ ñõåìû â Proteus è â êîäå
+// Ð»Ð¸Ð½ÐºÐ¾Ð²ÐºÐ° Ð²Ñ‹Ñ…Ð¾Ð´Ð¾Ð² ÑÑ…ÐµÐ¼Ñ‹ Ð² Proteus Ð¸ Ð² ÐºÐ¾Ð´Ðµ
 VOID K1804BC1::setup(IINSTANCE* instance, IDSIMCKT* dsimckt) {
 	_inst = instance;
 	_ckt = dsimckt;
@@ -51,7 +51,7 @@ VOID K1804BC1::setup(IINSTANCE* instance, IDSIMCKT* dsimckt) {
 		_pin_Y[i] = _inst->getdsimpin(buffer, true);
 		setState(0, _pin_Y[i], false);
 	}
-	// âûõîä ôëàãîâ
+	// Ð²Ñ‹Ñ…Ð¾Ð´ Ñ„Ð»Ð°Ð³Ð¾Ð²
 	_pin_C4 = _inst->getdsimpin((CHAR*)"C4", true);
 	setState(0, _pin_C4, false);
 	_pin_Z = _inst->getdsimpin((CHAR*)"Z", true);
@@ -62,7 +62,7 @@ VOID K1804BC1::setup(IINSTANCE* instance, IDSIMCKT* dsimckt) {
 	setState(0, _pin_OVR, false);
 }
 
-// ïîëó÷åíèå äàííûõ ñî âñåõ âõîäîâ
+// Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ Ð´Ð°Ð½Ð½Ñ‹Ñ… ÑÐ¾ Ð²ÑÐµÑ… Ð²Ñ…Ð¾Ð´Ð¾Ð²
 K1804BC1::CommandFields* K1804BC1::getCommand() {
 	CommandFields* cmd = new CommandFields();
 	cmd->From = genValue(_pin_I, 3, 0);
@@ -87,6 +87,7 @@ void K1804BC1::__download__000(const CommandFields* cmd, Operands* ops, ILogger*
 			+ std::to_string(ops->R) + ", S=PQ=" + std::to_string(ops->S));
 	}
 }
+
 void K1804BC1::__download__001(const CommandFields* cmd, Operands* ops, ILogger* log) {
 	if (cmd == nullptr || ops == nullptr) {
 		return;
@@ -99,6 +100,7 @@ void K1804BC1::__download__001(const CommandFields* cmd, Operands* ops, ILogger*
 			+ std::to_string(ops->S));
 	}
 }
+
 void K1804BC1::__download__010(const CommandFields* cmd, Operands* ops, ILogger* log) {
 	if (cmd == nullptr || ops == nullptr) {
 		return;
@@ -109,6 +111,7 @@ void K1804BC1::__download__010(const CommandFields* cmd, Operands* ops, ILogger*
 		log->log("From: R=0, S=PQ=" + std::to_string(ops->S));
 	}
 }
+
 void K1804BC1::__download__011(const CommandFields* cmd, Operands* ops, ILogger* log) {
 	if (cmd == nullptr || ops == nullptr) {
 		return;
@@ -120,6 +123,7 @@ void K1804BC1::__download__011(const CommandFields* cmd, Operands* ops, ILogger*
 			+ std::to_string(ops->S));
 	}
 }
+
 void K1804BC1::__download__100(const CommandFields* cmd, Operands* ops, ILogger* log) {
 	if (cmd == nullptr || ops == nullptr) {
 		return;
@@ -131,6 +135,7 @@ void K1804BC1::__download__100(const CommandFields* cmd, Operands* ops, ILogger*
 			+ std::to_string(ops->S));
 	}
 }
+
 void K1804BC1::__download__101(const CommandFields* cmd, Operands* ops, ILogger* log) {
 	if (cmd == nullptr || ops == nullptr) {
 		return;
@@ -143,6 +148,7 @@ void K1804BC1::__download__101(const CommandFields* cmd, Operands* ops, ILogger*
 	}
 
 }
+
 void K1804BC1::__download__110(const CommandFields* cmd, Operands* ops, ILogger* log) {
 	if (cmd == nullptr || ops == nullptr) {
 		return;
@@ -154,6 +160,7 @@ void K1804BC1::__download__110(const CommandFields* cmd, Operands* ops, ILogger*
 			+ std::to_string(ops->S));
 	}
 }
+
 void K1804BC1::__download__111(const CommandFields* cmd, Operands* ops, ILogger* log) {
 	if (cmd == nullptr || ops == nullptr) {
 		return;
@@ -165,7 +172,7 @@ void K1804BC1::__download__111(const CommandFields* cmd, Operands* ops, ILogger*
 	}
 }
 
-// Çàãðóçêà îïåðàíäîâ
+// Ð—Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ð¾Ð¿ÐµÑ€Ð°Ð½Ð´Ð¾Ð²
 K1804BC1::Operands* K1804BC1::getOperands(const CommandFields* cmd, ILogger* log) {
 	if (cmd == nullptr) {
 		return nullptr;
@@ -221,6 +228,7 @@ void K1804BC1::__alu__000(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 	}
 	computeArithmeticFlags(res);
 }
+
 void K1804BC1::__alu__001(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log) {
 	if (ops == nullptr || res == nullptr) {
 		return;
@@ -233,6 +241,7 @@ void K1804BC1::__alu__001(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 	}
 	computeArithmeticFlags(res);
 }
+
 void K1804BC1::__alu__010(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log) {
 	if (ops == nullptr || res == nullptr) {
 		return;
@@ -245,6 +254,7 @@ void K1804BC1::__alu__010(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 	}
 	computeArithmeticFlags(res);
 }
+
 void K1804BC1::__alu__011(const Operands* ops, ALUReasult* res, ILogger* log) {
 	if (ops == nullptr || res == nullptr) {
 		return;
@@ -256,6 +266,7 @@ void K1804BC1::__alu__011(const Operands* ops, ALUReasult* res, ILogger* log) {
 	}
 	// ... TODO: Flags
 }
+
 void K1804BC1::__alu__100(const Operands* ops, ALUReasult* res, ILogger* log) {
 	if (ops == nullptr || res == nullptr) {
 		return;
@@ -267,6 +278,7 @@ void K1804BC1::__alu__100(const Operands* ops, ALUReasult* res, ILogger* log) {
 	}
 	// ... TODO: Flags
 }
+
 void K1804BC1::__alu__101(const Operands* ops, ALUReasult* res, ILogger* log) {
 	if (ops == nullptr || res == nullptr) {
 		return;
@@ -278,6 +290,7 @@ void K1804BC1::__alu__101(const Operands* ops, ALUReasult* res, ILogger* log) {
 	}
 	// ... TODO: Flags
 }
+
 void K1804BC1::__alu__110(const Operands* ops, ALUReasult* res, ILogger* log) {
 	if (ops == nullptr || res == nullptr) {
 		return;
@@ -289,6 +302,7 @@ void K1804BC1::__alu__110(const Operands* ops, ALUReasult* res, ILogger* log) {
 	}
 	// ... TODO: Flags
 }
+
 void K1804BC1::__alu__111(const Operands* ops, ALUReasult* res, ILogger* log) {
 	if (ops == nullptr || res == nullptr) {
 		return;
@@ -352,6 +366,7 @@ void K1804BC1::__load__000(const CommandFields* cmd, ALUReasult* res, ILogger* l
 		log->log("Load: PQ=F=" + std::to_string(_reg_q));
 	}
 }
+
 void K1804BC1::__load__001(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 	if (cmd == nullptr || res == nullptr) {
 		return;
@@ -360,6 +375,7 @@ void K1804BC1::__load__001(const CommandFields* cmd, ALUReasult* res, ILogger* l
 		log->log("Load: -");
 	}
 }
+
 void K1804BC1::__load__010(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 	if (cmd == nullptr || res == nullptr) {
 		return;
@@ -372,6 +388,7 @@ void K1804BC1::__load__010(const CommandFields* cmd, ALUReasult* res, ILogger* l
 			std::to_string(_regs[cmd->B]));
 	}
 }
+
 void K1804BC1::__load__011(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 	if (cmd == nullptr || res == nullptr) {
 		return;
@@ -382,19 +399,20 @@ void K1804BC1::__load__011(const CommandFields* cmd, ALUReasult* res, ILogger* l
 			std::to_string(_regs[cmd->B]));
 	}
 }
+
 void K1804BC1::__load__100(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 	if (cmd == nullptr || res == nullptr) {
 		return;
 	}
 	// PR0->X1, PQ0->Y2
-		// Âûñòàâëÿåì íà âûõîäû PR0, PQ0 çíà÷åíèÿ âûòàëêèâàåìûõ áèòîâ X1, Y2
+		// Ð’Ñ‹ÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ Ð½Ð° Ð²Ñ‹Ñ…Ð¾Ð´Ñ‹ PR0, PQ0 Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð²Ñ‹Ñ‚Ð°Ð»ÐºÐ¸Ð²Ð°ÐµÐ¼Ñ‹Ñ… Ð±Ð¸Ñ‚Ð¾Ð² X1, Y2
 		//PQ0 = _reg_q & 0b0001;
 		//PR0 = res->Y & 0b0001;
 	uint8_t pq = _reg_q >> 1;
 	uint8_t ron = res->Y >> 1;
 
 	// X2->PR3, Y2->PQ3
-	// Ïîëó÷àåì ñ âõîäîâ PR3, PQ3 çíà÷åíèÿ çàäâèãàþùèõ áèòîâ X2, Y2
+	// ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ñ Ð²Ñ…Ð¾Ð´Ð¾Ð² PR3, PQ3 Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð·Ð°Ð´Ð²Ð¸Ð³Ð°ÑŽÑ‰Ð¸Ñ… Ð±Ð¸Ñ‚Ð¾Ð² X2, Y2
 	//if (PR3 == 1) {
 	//	ron |= 0b1000;
 	//}
@@ -409,17 +427,18 @@ void K1804BC1::__load__100(const CommandFields* cmd, ALUReasult* res, ILogger* l
 			std::to_string(_regs[cmd->B]));
 	}
 }
+
 void K1804BC1::__load__101(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 	if (cmd == nullptr || res == nullptr) {
 		return;
 	}
 	// PR0->X1
-		// Âûñòàâëÿåì íà âûõîä PR0 çíà÷åíèå âûòàëêèâàåìîãî áèòà X1
+		// Ð’Ñ‹ÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ Ð½Ð° Ð²Ñ‹Ñ…Ð¾Ð´ PR0 Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ð²Ñ‹Ñ‚Ð°Ð»ÐºÐ¸Ð²Ð°ÐµÐ¼Ð¾Ð³Ð¾ Ð±Ð¸Ñ‚Ð° X1
 		//PR0 = res->Y & 0b0001;
 	uint8_t ron = res->Y >> 1;
 
 	// X2->PR3
-	// Ïîëó÷àåì ñ âõîäà PR3 çíà÷åíèå çàäâèãàþùåãî áèòîâ X2
+	// ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ñ Ð²Ñ…Ð¾Ð´Ð° PR3 Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ð·Ð°Ð´Ð²Ð¸Ð³Ð°ÑŽÑ‰ÐµÐ³Ð¾ Ð±Ð¸Ñ‚Ð¾Ð² X2
 	//if (PR3 == 1) {
 	//	ron |= 0b1000;
 	//}
@@ -437,7 +456,7 @@ void K1804BC1::__load__110(const CommandFields* cmd, ALUReasult* res, ILogger* l
 	uint8_t ron = res->Y << 1;
 
 	// PR0<-X1, PQ0<-Y2
-	// Ïîëó÷àåì ñî âõîäîâ PR0, PQ0 çíà÷åíèÿ çàäâèãàþùèõ áèòîâ X1, Y2
+	// ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ ÑÐ¾ Ð²Ñ…Ð¾Ð´Ð¾Ð² PR0, PQ0 Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð·Ð°Ð´Ð²Ð¸Ð³Ð°ÑŽÑ‰Ð¸Ñ… Ð±Ð¸Ñ‚Ð¾Ð² X1, Y2
 	//if (PR0 == 1) {
 	//	ron |= 0b0001;
 	//}
@@ -446,7 +465,7 @@ void K1804BC1::__load__110(const CommandFields* cmd, ALUReasult* res, ILogger* l
 	//}
 
 	// X2<-PR3, Y2<-PQ3
-	// Âûñòàâëÿåì íà âûõîäû PR3, PQ3 çíà÷åíèÿ âûòàëêèâàåìûõ áèòîâ X2, Y2
+	// Ð’Ñ‹ÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ Ð½Ð° Ð²Ñ‹Ñ…Ð¾Ð´Ñ‹ PR3, PQ3 Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð²Ñ‹Ñ‚Ð°Ð»ÐºÐ¸Ð²Ð°ÐµÐ¼Ñ‹Ñ… Ð±Ð¸Ñ‚Ð¾Ð² X2, Y2
 	//PQ3 = pq & 0b10000;
 	//PR3 = ron & 0b10000;
 
@@ -465,15 +484,14 @@ void K1804BC1::__load__111(const CommandFields* cmd, ALUReasult* res, ILogger* l
 	uint8_t ron = res->Y << 1;
 
 	// PR0<-X1
-	// Ïîëó÷àåì ñî âõîäà PR0 çíà÷åíèå çàäâèãàþùåãî áèòà X1
+	// ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ ÑÐ¾ Ð²Ñ…Ð¾Ð´Ð° PR0 Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ð·Ð°Ð´Ð²Ð¸Ð³Ð°ÑŽÑ‰ÐµÐ³Ð¾ Ð±Ð¸Ñ‚Ð° X1
 	//if (PR0 == 1) {
 	//	ron |= 0b0001;
 	//}
-
+	
 	// X2<-PR3
-	// Âûñòàâëÿåì íà âûõîä PR3 çíà÷åíèå âûòàëêèâàåìîãî áèòà X2
+	// Ð’Ñ‹ÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ Ð½Ð° Ð²Ñ‹Ñ…Ð¾Ð´ PR3 Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ð²Ñ‹Ñ‚Ð°Ð»ÐºÐ¸Ð²Ð°ÐµÐ¼Ð¾Ð³Ð¾ Ð±Ð¸Ñ‚Ð° X2
 	//PR3 = ron & 0b10000;
-
 	_regs[cmd->B] = (ron) & 0b1111;
 	if (log != nullptr) {
 		log->log("POH(B=" + std::to_string(cmd->B) + ")=2F=" +
@@ -487,7 +505,7 @@ void K1804BC1::load(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 	case 0:
 		__load__000(cmd, res, log);
 		break;
-		// 001: Íåò çàãðóçêè
+		// 001: ÐÐµÑ‚ Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ¸
 	case 1:
 		__load__001(cmd, res, log);
 		break;
@@ -499,24 +517,24 @@ void K1804BC1::load(const CommandFields* cmd, ALUReasult* res, ILogger* log) {
 	case 3:
 		__load__011(cmd, res, log);
 		break;
-		// 100: PQ=Q/2, POH(B)=F/2 (ñäâèã âïðàâî)
+		// 100: PQ=Q/2, POH(B)=F/2 (ÑÐ´Ð²Ð¸Ð³ Ð²Ð¿Ñ€Ð°Ð²Ð¾)
 	case 4:
 		__load__100(cmd, res, log);
 		break;
-		// 101: POH(B)=F/2 (ñäâèã âïðàâî)
+		// 101: POH(B)=F/2 (ÑÐ´Ð²Ð¸Ð³ Ð²Ð¿Ñ€Ð°Ð²Ð¾)
 	case 5:
 		__load__101(cmd, res, log);
 		break;
-		// 110: PQ=2PQ, POH(B)=2F (ñäâèã âäåâî)
+		// 110: PQ=2PQ, POH(B)=2F (ÑÐ´Ð²Ð¸Ð³ Ð²Ð´ÐµÐ²Ð¾)
 	case 6:
 		__load__110(cmd, res, log);
 		break;
-		// 111: POH(B)=2F (ñäâèã âäåâî)
+		// 111: POH(B)=2F (ÑÐ´Ð²Ð¸Ð³ Ð²Ð´ÐµÐ²Ð¾)
 	case 7:
 		__load__111(cmd, res, log);
 		break;
 	}
-	// â res->Y ëåæèò âñåãäà íóæíûé âûõîä
+	// Ð² res->Y Ð»ÐµÐ¶Ð¸Ñ‚ Ð²ÑÐµÐ³Ð´Ð° Ð½ÑƒÐ¶Ð½Ñ‹Ð¹ Ð²Ñ‹Ñ…Ð¾Ð´
 	_reg_y = res->Y & 0b1111;
 }
 
@@ -524,22 +542,22 @@ VOID K1804BC1::simulate(ABSTIME time, DSIMMODES mode) {
 	auto log = new Logger();
 
 	if (isPosedge(_pin_T)) {
-		// ïîëó÷åíèå ìèêðîêîìàíäû
+		// Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ Ð¼Ð¸ÐºÑ€Ð¾ÐºÐ¾Ð¼Ð°Ð½Ð´Ñ‹
 		auto cmd = getCommand();
 		log->log("CMD #" + std::to_string(_dbg_counter++));
 
-		// çàãðóçêà îïåðàòîâ
+		// Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ð¾Ð¿ÐµÑ€Ð°Ñ‚Ð¾Ð²
 		auto ops = getOperands(cmd, log);
-		// âû÷èñëåíèå â ÀËÓ
+		// Ð²Ñ‹Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ðµ Ð² ÐÐ›Ð£
 		auto result = ALU(cmd->C0, cmd->Alu, ops, log);
-		// âûñòàâëåíèå ôëàãîâ
+		// Ð²Ñ‹ÑÑ‚Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ñ„Ð»Ð°Ð³Ð¾Ð²
 		_reg_z = result->Z;
 		_reg_f3 = result->F3;
 		_reg_c4 = result->C4;
 		_reg_ovr = result->OVR;
-		// çàãðóçêà ðåçóëüòîâ
+		// Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð¾Ð²
 		load(cmd, result, log);
-		// ëîãèðîâàíèå
+		// Ð»Ð¾Ð³Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ
 		_inst->log((CHAR*)log->getLog().c_str());
 
 		delete result;
