@@ -11,39 +11,37 @@ uint8_t K1804BC1::genValue(IDSIMPIN** pins, size_t n, size_t offset) {
 		res |= isHigh(pins[offset + i]) << i;
 	return res;
 }
-void K1804BC1::computeArithmeticFlags(ALUReasult* res, uint8_t c0, const Operands* ops, uint8_t aluCode) {
+void K1804BC1::computeFlags(ALUReasult* res, uint8_t c0, const Operands* ops, uint8_t aluCode) {
 	
 	switch (aluCode) {
 		case 3:
 			// ~(P3 * P2 * P1 * P0 + Cn); Сn == C0; P = R + S
 			res->C4 = ~((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 | ops->S &0b0100)  & 
-						(ops->R & 0b0010 | ops->S &0b0010) & (ops->R & 0b0001 | ops->S &0b0001)) | c0
+						(ops->R & 0b0010 | ops->S &0b0010) & (ops->R & 0b0001 | ops->S &0b0001)) | c0;
 			// ~(P3 * P2 * P1 * P0 + Cn); Сn == C0; P = R + S
-			res->OVR = ~((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 | ops->S &0b0100) & 
-						(ops->R & 0b0010 | ops->S &0b0010) & (ops->R & 0b0001 | ops->S &0b0001)) | c0
+			res->OVR = res->C4;
 			break;
 		case 4:
 			// G3 + G2 + G1 + G0 + Cn; Сn == C0; G = R * S
 			res->C4 = ((ops->R & 0b1000 & ops->S &0b1000) | (ops->R & 0b0100 & ops->S &0b0100)   |
-					   (ops->R & 0b0010 & ops->S &0b0010) | (ops->R & 0b0001 & ops->S &0b0001))  | c0
+					   (ops->R & 0b0010 & ops->S &0b0010) | (ops->R & 0b0001 & ops->S &0b0001))  | c0;
 			// G3 + G2 + G1 + G0 + Cn; Сn == C0; G = R * S
-			res->OVR = ((ops->R & 0b1000 & ops->S &0b1000) | (ops->R & 0b0100 & ops->S &0b0100)  |
-					    (ops->R & 0b0010 & ops->S &0b0010) | (ops->R & 0b0001 & ops->S &0b0001)) | c0
+			res->OVR = res->C4;
 			break;
 		case 5:
 			// Так же, как в 4, но все R заменены на ~R
 			res->C4 = ((~ops->R & 0b1000 & ops->S &0b1000) | (~ops->R & 0b0100 & ops->S &0b0100)   |
-					   (~ops->R & 0b0010 & ops->S &0b0010) | (~ops->R & 0b0001 & ops->S &0b0001))  | c0
+					   (~ops->R & 0b0010 & ops->S &0b0010) | (~ops->R & 0b0001 & ops->S &0b0001))  | c0;
 
 			res->OVR = (~(ops->R & 0b1000 & ops->S &0b1000) | (~ops->R & 0b0100 & ops->S &0b0100)  |
-					    (~ops->R & 0b0010 & ops->S &0b0010) | (~ops->R & 0b0001 & ops->S &0b0001)) | c0
+					    (~ops->R & 0b0010 & ops->S &0b0010) | (~ops->R & 0b0001 & ops->S &0b0001)) | c0;
 			break;
 		case 6:
 			// Так же, как в 7, но все R заменены на ~R
 			res->C4 =  ~((~ops->R & 0b1000 & ops->S &0b1000) | ((~ops->R & 0b1000 | ops->S &0b1000) & (~ops->R & 0b0100 & ops->S &0b0100)) |
 						((~ops->R & 0b1000 | ops->S &0b1000) & (~ops->R & 0b0100 | ops->S &0b0100)  & (~ops->R & 0b0010 & ops->S &0b0010)) |
 						(((~ops->R & 0b1000 | ops->S &0b1000) & (~ops->R & 0b0100 | ops->S &0b0100)  & (~ops->R & 0b0010 | ops->S &0b0010) & (~ops->R & 0b0001 | ops->S &0b0001)) & 
-						((~ops->R & 0b0001 & ops->S &0b0001) | ~c0)))
+						((~ops->R & 0b0001 & ops->S &0b0001) | ~c0)));
 
 			res->OVR = (~(~ops->R & 0b0100 | ops->S &0b0100) | 
 						~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 & ops->S &0b0010) & ~(~ops->R & 0b0001 | ops->S &0b0001) |
@@ -53,14 +51,14 @@ void K1804BC1::computeArithmeticFlags(ALUReasult* res, uint8_t c0, const Operand
 						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 | ops->S &0b0100) |
 						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 | ops->S &0b0010) |
 						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 & ops->S &0b0010) & ~(~ops->R & 0b0001 | ops->S &0b0001) |
-						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 & ops->S &0b0010) & ~(~ops->R & 0b0001 & ops->S &0b0001) & c0)
+						~(~ops->R & 0b1000 & ops->S &0b1000) & ~(~ops->R & 0b0100 & ops->S &0b0100) & ~(~ops->R & 0b0010 & ops->S &0b0010) & ~(~ops->R & 0b0001 & ops->S &0b0001) & c0);
 			break:
 		case 7:
 			// ~(G3 + P3 * G2 + P3 * P2 * G1 + P3 * P2 * P1 * P0 * (G1 + ~Cn)); Сn == C0
 			res->C4 = ~((ops->R & 0b1000 & ops->S &0b1000) | ((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 & ops->S &0b0100))  |
 						((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 | ops->S &0b0100)  & (ops->R & 0b0010 & ops->S &0b0010)) |
 						(((ops->R & 0b1000 | ops->S &0b1000) & (ops->R & 0b0100 | ops->S &0b0100)  & (ops->R & 0b0010 | ops->S &0b0010) & (ops->R & 0b0001 | ops->S &0b0001)) & 
-						((ops->R & 0b0001 & ops->S &0b0001) | ~c0)))
+						((ops->R & 0b0001 & ops->S &0b0001) | ~c0)));
 			// (~P2 + ~G2 * ~P1 + ~G2 * ~G1 * ~P0 + ~G2 * ~G1 * ~G0 * Cn) ^ 
 			// (~P3 + ~G3 * ~P2 + ~G3 * ~G2 * ~P1 + ~G3 * ~G2 * ~G1 * ~P0 + ~G3 * ~G2 * ~G1 * ~G0 * Cn)
 			res->OVR = (~(ops->R & 0b0100 | ops->S &0b0100) | 
@@ -71,7 +69,7 @@ void K1804BC1::computeArithmeticFlags(ALUReasult* res, uint8_t c0, const Operand
 						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 | ops->S &0b0100) |
 						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 | ops->S &0b0010) |
 						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 & ops->S &0b0010) & ~(ops->R & 0b0001 | ops->S &0b0001) |
-						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 & ops->S &0b0010) & ~(ops->R & 0b0001 & ops->S &0b0001) & c0)		
+						~(ops->R & 0b1000 & ops->S &0b1000) & ~(ops->R & 0b0100 & ops->S &0b0100) & ~(ops->R & 0b0010 & ops->S &0b0010) & ~(ops->R & 0b0001 & ops->S &0b0001) & c0);	
 			break;
 		default:
 			res->Z = !(res->Y & 0b1111);
@@ -288,7 +286,7 @@ void K1804BC1::__alu__000(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 			+ std::to_string(ops->S) + "+" + std::to_string(c0) + "="
 			+ std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res, c0, ops, 0);
+	computeFlags(res, c0, ops, 0);
 }
 
 void K1804BC1::__alu__001(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -301,7 +299,7 @@ void K1804BC1::__alu__001(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 			+ std::to_string(ops->R) + "-1+" + std::to_string(c0) + "="
 			+ std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res, c0, ops, 1);
+	computeFlags(res, c0, ops, 1);
 }
 
 void K1804BC1::__alu__010(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -314,7 +312,7 @@ void K1804BC1::__alu__010(uint8_t c0, const Operands* ops, ALUReasult* res, ILog
 			+ std::to_string(ops->S) + "-1+" + std::to_string(c0) + "="
 			+ std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res, c0, ops, 2);
+	computeFlags(res, c0, ops, 2);
 }
 
 void K1804BC1::__alu__011(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -326,7 +324,7 @@ void K1804BC1::__alu__011(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=RvS=" + std::to_string(ops->R) + "v"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res, c0, ops, 3);
+	computeFlags(res, c0, ops, 3);
 }
 
 void K1804BC1::__alu__100(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -338,7 +336,7 @@ void K1804BC1::__alu__100(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=R&S=" + std::to_string(ops->R) + "&"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res, c0, ops, 4);
+	computeFlags(res, c0, ops, 4);
 }
 
 void K1804BC1::__alu__101(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -350,7 +348,7 @@ void K1804BC1::__alu__101(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=~R&S=" + std::to_string(ops->R) + "&"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res, c0, ops, 5);
+	computeFlags(res, c0, ops, 5);
 }
 
 void K1804BC1::__alu__110(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -362,7 +360,7 @@ void K1804BC1::__alu__110(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=R^S=" + std::to_string(ops->R) + "^"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res, c0, ops, 6);
+	computeFlags(res, c0, ops, 6);
 }
 
 void K1804BC1::__alu__111(const Operands* ops, ALUReasult* res, ILogger* log) {
@@ -374,7 +372,7 @@ void K1804BC1::__alu__111(const Operands* ops, ALUReasult* res, ILogger* log) {
 		log->log("ALU: Y=~(R^S)=~(" + std::to_string(ops->R) + "^"
 			+ std::to_string(ops->S) + ")=" + std::to_string(res->Y));
 	}
-	computeArithmeticFlags(res, c0, ops, 7);
+	computeFlags(res, c0, ops, 7);
 }
 
 K1804BC1::ALUReasult* K1804BC1::ALU(uint8_t c0, uint8_t code, const Operands* ops, ILogger* log) {
