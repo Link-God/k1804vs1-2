@@ -75,18 +75,21 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 		res->G_ = !(G3 || P3 && G2 || P3 && P2 && G1 || P3 && P2 && P1 && G0);
 		res->C4 = C4;
 		res->OVR = C3 != C4;
+		break;
 	case 1:
 		res->P_ = !(notR_P3 && notR_P2 && notR_P1 && notR_P0);
 		res->G_ = !(notR_G3 || notR_P3 && notR_G2 || notR_P3 && notR_P2 && notR_G1 ||
 			notR_P3 && notR_P2 && notR_P1 && notR_G0);
 		res->C4 = notR_C4;
 		res->OVR = notR_C3 != notR_C4;
+		break;
 	case 2:
 		res->P_ = !(notS_P3 && notS_P2 && notS_P1 && notS_P0);
 		res->G_ = !(notS_G3 || notS_P3 && notS_G2 || notS_P3 && notS_P2 && notS_G1 ||
 			notS_P3 && notS_P2 && notS_P1 && notS_G0);
 		res->C4 = notS_C4;
 		res->OVR = notS_C3 != notS_C4;
+		break;
 	case 3:
 		res->P_ = false;
 		res->G_ = P3 && P2 && P1 && P0;
