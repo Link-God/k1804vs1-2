@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "vsm.h"
 #include <string>
-#include <cstdio>
 #include <cinttypes>
 
 #include "logger.h"
@@ -27,6 +26,8 @@ class K1804BC1 : public IDSIMMODEL
 	bool _reg_f3;
 	bool _reg_c4;
 	bool _reg_ovr;
+	bool _reg_p;
+	bool _reg_g;
 	IDSIMPIN* _pin_A[REGISTER_SIZE];
 	IDSIMPIN* _pin_B[REGISTER_SIZE];
 	IDSIMPIN* _pin_D[REGISTER_SIZE];
@@ -38,6 +39,8 @@ class K1804BC1 : public IDSIMMODEL
 	IDSIMPIN* _pin_C4;
 	IDSIMPIN* _pin_Z;
 	IDSIMPIN* _pin_F3;
+	IDSIMPIN* _pin_P;
+	IDSIMPIN* _pin_G;
 	IDSIMPIN* _pin_OVR;
 	IDSIMPIN* _pin_PR0;
 	IDSIMPIN* _pin_PQ0;
@@ -48,7 +51,7 @@ class K1804BC1 : public IDSIMMODEL
 	bool isLow(IDSIMPIN* pin);
 	bool isNegedge(IDSIMPIN* pin);
 	bool isPosedge(IDSIMPIN* pin);
-	void setState(ABSTIME time, IDSIMPIN* pin, bool set);
+	void setState(ABSTIME time, IDSIMPIN* pin, int set);
 
 	struct CommandFields {
 		uint8_t From;
@@ -57,7 +60,7 @@ class K1804BC1 : public IDSIMMODEL
 		uint8_t A;
 		uint8_t B;
 		uint8_t D;
-		uint8_t C0;
+		bool C0;
 	};
 	CommandFields* getCommand();
 
@@ -78,24 +81,24 @@ class K1804BC1 : public IDSIMMODEL
 
 	struct ALUReasult {
 		uint8_t Y; // Результат Алу
-		uint8_t OVR; // Переполнение
-		uint8_t C4; // Перенос из старшего разряда
-		uint8_t F3; // Знак, содержимое старшего разряда АЛУ
-		uint8_t Z; // Признак нулевого результата
-		uint8_t G_; // Сигнал генерации переноса из АЛУ
-		uint8_t P_; // Сигнал распространения переноса из АЛУ
+		bool OVR; // Переполнение
+		bool C4; // Перенос из старшего разряда
+		bool F3; // Знак, содержимое старшего разряда АЛУ
+		bool Z; // Признак нулевого результата
+		bool G_; // Сигнал генерации переноса из АЛУ
+		bool P_; // Сигнал распространения переноса из АЛУ
 	};
 
-	ALUReasult* ALU(uint8_t c0, uint8_t code, const Operands* ops, ILogger* log);
+	ALUReasult* ALU(bool c0, uint8_t code, const Operands* ops, ILogger* log);
 
-	void __alu__000(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log);
-	void __alu__001(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log);
-	void __alu__010(uint8_t c0, const Operands* ops, ALUReasult* res, ILogger* log);
-	void __alu__011(const Operands* ops, ALUReasult* res, ILogger* log);
-	void __alu__100(const Operands* ops, ALUReasult* res, ILogger* log);
-	void __alu__101(const Operands* ops, ALUReasult* res, ILogger* log);
-	void __alu__110(const Operands* ops, ALUReasult* res, ILogger* log);
-	void __alu__111(const Operands* ops, ALUReasult* res, ILogger* log);
+	void __alu__000(bool c0, const Operands* ops, ALUReasult* res, ILogger* log);
+	void __alu__001(bool c0, const Operands* ops, ALUReasult* res, ILogger* log);
+	void __alu__010(bool c0, const Operands* ops, ALUReasult* res, ILogger* log);
+	void __alu__011(bool c0, const Operands* ops, ALUReasult* res, ILogger* log);
+	void __alu__100(bool c0, const Operands* ops, ALUReasult* res, ILogger* log);
+	void __alu__101(bool c0, const Operands* ops, ALUReasult* res, ILogger* log);
+	void __alu__110(bool c0, const Operands* ops, ALUReasult* res, ILogger* log);
+	void __alu__111(bool c0, const Operands* ops, ALUReasult* res, ILogger* log);
 
 	void load(const CommandFields* cmd, ALUReasult* res, ILogger* log);
 
@@ -108,7 +111,7 @@ class K1804BC1 : public IDSIMMODEL
 	void __load__110(const CommandFields* cmd, ALUReasult* res, ILogger* log);
 	void __load__111(const CommandFields* cmd, ALUReasult* res, ILogger* log);
 	
-	void computeArithmeticFlags(ALUReasult* res);
+	void computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8_t aluCode);
 public:
 	INT isdigital(CHAR* pinname);
 	VOID setup(IINSTANCE* inst, IDSIMCKT* dsim);
