@@ -240,8 +240,8 @@ VOID K1804BC1::setup(IINSTANCE* instance, IDSIMCKT* dsimckt) {
 K1804BC1::CommandFields* K1804BC1::getCommand() {
 	CommandFields* cmd = new CommandFields();
 	cmd->From = genValue(_pin_I, 3, 0);
-	cmd->Alu = genValue(_pin_I, 6, 3);
-	cmd->To = genValue(_pin_I, 9, 6);
+	cmd->Alu = genValue(_pin_I, 3, 3);
+	cmd->To = genValue(_pin_I, 3, 6);
 	cmd->A = genValue(_pin_A, REGISTER_SIZE);
 	cmd->B = genValue(_pin_B, REGISTER_SIZE);
 	cmd->D = genValue(_pin_D, REGISTER_SIZE);
