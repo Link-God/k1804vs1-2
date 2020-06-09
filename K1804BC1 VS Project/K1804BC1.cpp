@@ -355,7 +355,7 @@ void K1804BC1::__alu__000(bool c0, const Operands* ops, ALUReasult* res, ILogger
 	if (ops == nullptr || res == nullptr) {
 		return;
 	}
-	res->Y = ops->R + ops->S + c0;
+	res->Y = (ops->R + ops->S + c0) & 0b1111;
 	if (log != nullptr) {
 		log->log("ALU: Y=R+S+C0=" + std::to_string(ops->R) + "+"
 			+ std::to_string(ops->S) + "+" + std::to_string(c0) + "="
@@ -368,7 +368,7 @@ void K1804BC1::__alu__001(bool c0, const Operands* ops, ALUReasult* res, ILogger
 	if (ops == nullptr || res == nullptr) {
 		return;
 	}
-	res->Y = ops->S + (ops->R & 0b1111) + c0;
+	res->Y = (ops->S - ops->R - 1 + c0) & 0b1111;
 	if (log != nullptr) {
 		log->log("ALU: Y=S-R-1+C0=" + std::to_string(ops->S) + "-"
 			+ std::to_string(ops->R) + "-1+" + std::to_string(c0) + "="
@@ -381,7 +381,7 @@ void K1804BC1::__alu__010(bool c0, const Operands* ops, ALUReasult* res, ILogger
 	if (ops == nullptr || res == nullptr) {
 		return;
 	}
-	res->Y = ops->R + (ops->S & 0b1111) + c0;
+	res->Y = (ops->R - ops->S - 1 + c0) & 0b1111;
 	if (log != nullptr) {
 		log->log("ALU: Y=R-S-1+C0=" + std::to_string(ops->R) + "-"
 			+ std::to_string(ops->S) + "-1+" + std::to_string(c0) + "="
@@ -406,7 +406,7 @@ void K1804BC1::__alu__100(bool c0, const Operands* ops, ALUReasult* res, ILogger
 	if (ops == nullptr || res == nullptr) {
 		return;
 	}
-	res->Y = ops->R & ops->S;
+	res->Y = (ops->R & ops->S) & 0b1111;
 	if (log != nullptr) {
 		log->log("ALU: Y=R&S=" + std::to_string(ops->R) + "&"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
@@ -418,7 +418,7 @@ void K1804BC1::__alu__101(bool c0, const Operands* ops, ALUReasult* res, ILogger
 	if (ops == nullptr || res == nullptr) {
 		return;
 	}
-	res->Y = (~ops->R & 0b1111) & ops->S;
+	res->Y = (~ops->R & ops->S) & 0b1111;
 	if (log != nullptr) {
 		log->log("ALU: Y=~R&S=" + std::to_string(ops->R) + "&"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
@@ -430,7 +430,7 @@ void K1804BC1::__alu__110(bool c0, const Operands* ops, ALUReasult* res, ILogger
 	if (ops == nullptr || res == nullptr) {
 		return;
 	}
-	res->Y = ops->R ^ ops->S;
+	res->Y = (ops->R ^ ops->S) & 0b1111;
 	if (log != nullptr) {
 		log->log("ALU: Y=R^S=" + std::to_string(ops->R) + "^"
 			+ std::to_string(ops->S) + "=" + std::to_string(res->Y));
@@ -760,11 +760,13 @@ VOID K1804BC1::simulate(ABSTIME time, DSIMMODES mode) {
 }
 
 bool K1804BC1::isHigh(IDSIMPIN* pin) {
-	return ishigh(pin->istate());
+	// return ishigh(pin->istate());
+	return pin->activity() == 1;
 }
 
 bool K1804BC1::isLow(IDSIMPIN* pin) {
-	return islow(pin->istate());
+	//return islow(pin->istate());
+	return pin->activity() == -1;
 }
 
 bool K1804BC1::isNegedge(IDSIMPIN* pin) {
