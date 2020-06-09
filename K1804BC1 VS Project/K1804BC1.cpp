@@ -760,11 +760,13 @@ VOID K1804BC1::simulate(ABSTIME time, DSIMMODES mode) {
 }
 
 bool K1804BC1::isHigh(IDSIMPIN* pin) {
-	return ishigh(pin->istate());
+	// return ishigh(pin->istate());
+	return pin->activity() == 1;
 }
 
 bool K1804BC1::isLow(IDSIMPIN* pin) {
-	return islow(pin->istate());
+	//return islow(pin->istate());
+	return pin->activity() == -1;
 }
 
 bool K1804BC1::isNegedge(IDSIMPIN* pin) {
