@@ -95,10 +95,6 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 		res->G_ = P3 && P2 && P1 && P0;
 		// ~(P3 * P2 * P1 * P0) + Cn; Сn == C0; P = R + S
 		res->C4 = !(P3 && P2 && P1 && P0) || c0;
-		
-		// res->C4 = ~((ops->R & 0b1000 | ops->S & 0b1000) & (ops->R & 0b0100 | ops->S & 0b0100) &
-		// 	(ops->R & 0b0010 | ops->S & 0b0010) & (ops->R & 0b0001 | ops->S & 0b0001)) | c0;
-
 		// ~(P3 * P2 * P1 * P0 + Cn); Сn == C0; P = R + S
 		res->OVR = res->C4;
 		break;
@@ -107,10 +103,6 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 		res->G_ = !(G3 || G2 || G1 || G0);
 		// G3 + G2 + G1 + G0 + Cn; Сn == C0; G = R * S
 		res->C4 = G3 || G2 || G1 || G0 || c0;
-		
-		// res->C4 = ((ops->R & 0b1000 & ops->S & 0b1000) | (ops->R & 0b0100 & ops->S & 0b0100) |
-		// 	(ops->R & 0b0010 & ops->S & 0b0010) | (ops->R & 0b0001 & ops->S & 0b0001)) | c0;
-
 		// G3 + G2 + G1 + G0 + Cn; Сn == C0; G = R * S
 		res->OVR = res->C4;
 		break;
@@ -120,11 +112,7 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 		// Так же, как в 4, но все R заменены на ~R
 		res->C4 = notR_G3 || notR_G2 || notR_G1 || notR_G0 || c0;
 		res->OVR = res->C4;
-		// res->C4 = ((~ops->R & 0b1000 & ops->S & 0b1000) | (~ops->R & 0b0100 & ops->S & 0b0100) |
-		// 	(~ops->R & 0b0010 & ops->S & 0b0010) | (~ops->R & 0b0001 & ops->S & 0b0001)) | c0;
-		//
-		// res->OVR = (~(ops->R & 0b1000 & ops->S & 0b1000) | (~ops->R & 0b0100 & ops->S & 0b0100) |
-		// 	(~ops->R & 0b0010 & ops->S & 0b0010) | (~ops->R & 0b0001 & ops->S & 0b0001)) | c0;
+		
 		break;
 	case 6:
 		res->P_ = notR_G3 || notR_G2 || notR_G1 || notR_G0;
@@ -140,21 +128,6 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 		!=
 					(!notR_P3 || !notR_G3 && !notR_P2 || !notR_G3 && !notR_G2 && !notR_P1 ||
 					!notR_G3 && !notR_G2 && !notR_G1 && !notR_P0 || !notR_G3 && !notR_G2 && !notR_G1 && !notR_G0 && c0);
-		
-		// res->C4 = ~((~ops->R & 0b1000 & ops->S & 0b1000) | ((~ops->R & 0b1000 | ops->S & 0b1000) & (~ops->R & 0b0100 & ops->S & 0b0100)) |
-		// 	((~ops->R & 0b1000 | ops->S & 0b1000) & (~ops->R & 0b0100 | ops->S & 0b0100) & (~ops->R & 0b0010 & ops->S & 0b0010)) |
-		// 	(((~ops->R & 0b1000 | ops->S & 0b1000) & (~ops->R & 0b0100 | ops->S & 0b0100) & (~ops->R & 0b0010 | ops->S & 0b0010) & (~ops->R & 0b0001 | ops->S & 0b0001)) &
-		// 		((~ops->R & 0b0001 & ops->S & 0b0001) | ~c0)));
-		//
-		// res->OVR = (~(~ops->R & 0b0100 | ops->S & 0b0100) |
-		// 	~(~ops->R & 0b0100 & ops->S & 0b0100) & ~(~ops->R & 0b0010 & ops->S & 0b0010) & ~(~ops->R & 0b0001 | ops->S & 0b0001) |
-		// 	~(~ops->R & 0b0100 & ops->S & 0b0100) & ~(~ops->R & 0b0010 & ops->S & 0b0010) & ~(~ops->R & 0b0001 & ops->S & 0b0001) & c0)
-		// 	^
-		// 	(~(~ops->R & 0b1000 | ops->S & 0b1000) |
-		// 		~(~ops->R & 0b1000 & ops->S & 0b1000) & ~(~ops->R & 0b0100 | ops->S & 0b0100) |
-		// 		~(~ops->R & 0b1000 & ops->S & 0b1000) & ~(~ops->R & 0b0100 & ops->S & 0b0100) & ~(~ops->R & 0b0010 | ops->S & 0b0010) |
-		// 		~(~ops->R & 0b1000 & ops->S & 0b1000) & ~(~ops->R & 0b0100 & ops->S & 0b0100) & ~(~ops->R & 0b0010 & ops->S & 0b0010) & ~(~ops->R & 0b0001 | ops->S & 0b0001) |
-		// 		~(~ops->R & 0b1000 & ops->S & 0b1000) & ~(~ops->R & 0b0100 & ops->S & 0b0100) & ~(~ops->R & 0b0010 & ops->S & 0b0010) & ~(~ops->R & 0b0001 & ops->S & 0b0001) & c0);
 		break;
 	case 7:
 		res->P_ = G3 || G2 || G1 || G0;
@@ -162,24 +135,12 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 		// ~(G3 + P3 * G2 + P3 * P2 * G1 + P3 * P2 * P1 * P0 * (G1 + ~Cn)); Сn == C0
 		res->C4 = !(G3 || P3 && G2 || P3 && P2 && G1 || P3 && P2 && P1 && P0 && (G1 || !c0));
 		
-		// res->C4 = ~((ops->R & 0b1000 & ops->S & 0b1000) | ((ops->R & 0b1000 | ops->S & 0b1000) & (ops->R & 0b0100 & ops->S & 0b0100)) |
-		// 	((ops->R & 0b1000 | ops->S & 0b1000) & (ops->R & 0b0100 | ops->S & 0b0100) & (ops->R & 0b0010 & ops->S & 0b0010)) |
-		// 	(((ops->R & 0b1000 | ops->S & 0b1000) & (ops->R & 0b0100 | ops->S & 0b0100) & (ops->R & 0b0010 | ops->S & 0b0010) & (ops->R & 0b0001 | ops->S & 0b0001)) &
-		// 		((ops->R & 0b0001 & ops->S & 0b0001) | ~c0)));
+		
 		 		
 		// (~P2 + ~G2 * ~P1 + ~G2 * ~G1 * ~P0 + ~G2 * ~G1 * ~G0 * Cn) ^ 
 		// (~P3 + ~G3 * ~P2 + ~G3 * ~G2 * ~P1 + ~G3 * ~G2 * ~G1 * ~P0 + ~G3 * ~G2 * ~G1 * ~G0 * Cn)
 		res->OVR = (!P2 || !G2 && !P1 || !G2 && !G1 && !P0 || !G2 && !G1 && !G0 && c0) !=
 			(!P3 || !G3 && !P2 || !G3 && !G2 && !P1 || !G3 && !G2 && !G1 && !P0 || !G3 && !G2 && !G1 && !G0 && c0);
-		// res->OVR = (~(ops->R & 0b0100 | ops->S & 0b0100) |
-		// 	~(ops->R & 0b0100 & ops->S & 0b0100) & ~(ops->R & 0b0010 & ops->S & 0b0010) & ~(ops->R & 0b0001 | ops->S & 0b0001) |
-		// 	~(ops->R & 0b0100 & ops->S & 0b0100) & ~(ops->R & 0b0010 & ops->S & 0b0010) & ~(ops->R & 0b0001 & ops->S & 0b0001) & c0)
-		// 	^
-		// 	(~(ops->R & 0b1000 | ops->S & 0b1000) |
-		// 		~(ops->R & 0b1000 & ops->S & 0b1000) & ~(ops->R & 0b0100 | ops->S & 0b0100) |
-		// 		~(ops->R & 0b1000 & ops->S & 0b1000) & ~(ops->R & 0b0100 & ops->S & 0b0100) & ~(ops->R & 0b0010 | ops->S & 0b0010) |
-		// 		~(ops->R & 0b1000 & ops->S & 0b1000) & ~(ops->R & 0b0100 & ops->S & 0b0100) & ~(ops->R & 0b0010 & ops->S & 0b0010) & ~(ops->R & 0b0001 | ops->S & 0b0001) |
-		// 		~(ops->R & 0b1000 & ops->S & 0b1000) & ~(ops->R & 0b0100 & ops->S & 0b0100) & ~(ops->R & 0b0010 & ops->S & 0b0010) & ~(ops->R & 0b0001 & ops->S & 0b0001) & c0);
 		break;
 	}
 }
