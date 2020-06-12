@@ -121,7 +121,7 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 		// Так же, как в 7, но все R заменены на ~R
 
 		res->C4 = !(notR_G3 || notR_P3 && notR_G2 || notR_P3 && notR_P2 && notR_G1 ||
-			notR_P3 && notR_P2 && notR_P1 && notR_P0 && (notR_G1 || !c0));
+			notR_P3 && notR_P2 && notR_P1 && notR_P0 && (notR_G0 || !c0));
 		
 		res->OVR = (!notR_P2 || !notR_G2 && !notR_P1 || !notR_G2 && !notR_G1 && !notR_P0 ||
 					!notR_G2 && !notR_G1 && !notR_G0 && c0)
@@ -133,7 +133,7 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 		res->P_ = G3 || G2 || G1 || G0;
 		res->G_ = G3 || P3 && G2 || P3 && P2 && G1 || P3 && P2 && P1 && P0;
 		// ~(G3 + P3 * G2 + P3 * P2 * G1 + P3 * P2 * P1 * P0 * (G1 + ~Cn)); Сn == C0
-		res->C4 = !(G3 || P3 && G2 || P3 && P2 && G1 || P3 && P2 && P1 && P0 && (G1 || !c0));
+		res->C4 = !(G3 || P3 && G2 || P3 && P2 && G1 || P3 && P2 && P1 && P0 && (G0 || !c0));
 		
 		
 		 		
