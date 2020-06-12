@@ -47,7 +47,7 @@ void K1804BC1::computeFlags(ALUReasult* res, bool c0, const Operands* ops, uint8
 	bool C3 = G2 || P2 && G1 || P2 && P1 && G0 || P2 && P1 && P0 && c0;
 
 	bool notR_C4 = notR_G3 ||
-		notR_P3 && G2 ||
+		notR_P3 && notR_G2 ||
 		notR_P3 && notR_P2 && notR_G1 ||
 		notR_P3 && notR_P2 && notR_P1 && notR_G0 ||
 		notR_P3 && notR_P2 && notR_P1 && notR_P0 && c0;
